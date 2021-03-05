@@ -67,18 +67,23 @@ Hooks.on("updateToken", (scene, token, updateData, options, userId) => {
 		math[actor.data._id]={'hpdif': (parseInt(temp_hp[actor.data._id].hpvalue) - parseInt(current_hp_npc[actor.data._id].hpvalue)), 'hpmaxdif': (parseInt(temp_hp[actor.data._id].hpmax) - parseInt(current_hp_npc[actor.data._id].hpmax))};
 	    if(math[actor.data._id].hpdif>0 && math[actor.data._id].hpmaxdif==0)
 		{
+			let resWeakImmun = "";
+			resWeakImmun += actor.actor.data.data.traits.di.value.length == 0 ? '': '<br/>Immunity:' +actor.actor.data.data.traits.di.value.toString();
+			resWeakImmun += actor.actor.data.data.traits.dr.length == 0 ? '': '<br/>Resistance:' +actor.actor.data.data.traits.dr.map(a=> `${a.label}:${a.value}`).join(",");
+			resWeakImmun += actor.actor.data.data.traits.dv.length == 0 ? '': '<br/>Vulnerable:' +actor.actor.data.data.traits.dv.map(a=> `${a.label}:${a.value}`).join(",");
+			
 			if (game.settings.get('health-monitor', 'npc_name')&& actor.data.displayName==0)
 			{
 			chatData = 
 			{
-				content: ('<span class="hm_messagetaken">'+' Unknown entity'+ ' takes '+(math[actor.data._id].hpdif)+' damage </span>')
+				content: ('<span class="hm_messagetaken">'+' Unknown entity'+ ' takes '+(math[actor.data._id].hpdif)+' damage ' +resWeakImmun  +' </span>')
 			};
 			}
 			else
 			{	
 			chatData = 
 			{
-				content: ('<span class="hm_messagetaken">'+ current_hp_npc[actor.data._id].name + ' takes '+(math[actor.data._id].hpdif)+' damage </span>')
+				content: ('<span class="hm_messagetaken">'+ current_hp_npc[actor.data._id].name + ' takes '+(math[actor.data._id].hpdif)+' damage ' +resWeakImmun  +' </span>')
 			};
 			}
 		}
@@ -102,6 +107,7 @@ Hooks.on("updateToken", (scene, token, updateData, options, userId) => {
 	}
 
 	if((chatData)!== ''&& spamcontrol) {
+		chatData.whisper = game.users.entities.filter(u => u.isGM).map(u => u._id);
 		ChatMessage.create(chatData, {});	
 	}
 	chatData="";
@@ -122,9 +128,13 @@ Hooks.on('updateActor', (data, options, apps, userId) => {
 		math[actor.data._id]={'hpdif': (parseInt(temp_hp[actor.data._id].hpvalue) - parseInt(current_hp_actor[actor.data._id].hpvalue)), 'hpmaxdif': (parseInt(temp_hp[actor.data._id].hpmax) - parseInt(current_hp_actor[actor.data._id].hpmax))};
 	    if(math[actor.data._id].hpdif>0 && math[actor.data._id].hpmaxdif==0)
 		{
+			let resWeakImmun = "";
+			resWeakImmun += actor.data.data.traits.di.value.length == 0 ? '': '<br/>Immunity:' +actor.data.data.traits.di.value.toString();
+			resWeakImmun += actor.data.data.traits.dr.length == 0 ? '': '<br/>Resistance:' +actor.data.data.traits.dr.map(a=> `${a.label}:${a.value}`).join(",");
+			resWeakImmun += actor.data.data.traits.dv.length == 0 ? '': '<br/>Vulnerable:' +actor.data.data.traits.dv.map(a=> `${a.label}:${a.value}`).join(",");
 			chatData = 
 			{
-				content: ('<span class="hm_messagetaken">'+ current_hp_actor[actor.data._id].name + ' takes '+(math[actor.data._id].hpdif)+' damage </span>')
+				content: ('<span class="hm_messagetaken">'+ current_hp_actor[actor.data._id].name + ' takes '+(math[actor.data._id].hpdif)+' damage ' +resWeakImmun  +' </span>')
 			};
 		}
 		if(math[actor.data._id].hpdif<0 && math[actor.data._id].hpmaxdif==0)
