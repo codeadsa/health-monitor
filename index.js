@@ -11,6 +11,8 @@ Hooks.once('init', async function() {
         config: true,
         hint: 'Hide name of npc/monster'
     });
+	
+	
 });
 
 //HP storing code for canvas load or token created
@@ -200,3 +202,21 @@ Hooks.on('renderSceneControls', (controls, html) => {
 			}
         });	
 	
+
+var curRound = 0;
+Hooks.on("updateCombat", (combat, changed, options, userId) => {
+	if (curRound != game.combat.current.round) {
+		curRound = game.combat.current.round
+
+		chatData = 
+		{
+			content: ('<span>Round#' +curRound +'</span>')
+		};
+		
+		if((chatData)!== ''&& spamcontrol) {
+			ChatMessage.create(chatData, {});
+		}
+		chatData="";
+	}
+	
+});
